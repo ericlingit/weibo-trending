@@ -1,4 +1,5 @@
-from typing import List
+from dataclasses import dataclass
+from typing import List, Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -28,23 +29,63 @@ def get_new_posts() -> dict:
     return resp.json()
 
 
-def parse_new_posts(data: dict) -> List[dict]:
-    posts: List[dict] = []
+@dataclass
+class User:
+    id: int
+    screen_name: str
+    profile_url: str
+    followers_count: str  # Example: "433.8万".
+    gender: str
+
+
+@dataclass
+class Post:
+    id: str
+    text: str
+    url: str
+    poster: User
+    pics: List[str]
+
+
+def parse_new_posts(data: dict) -> List[Post]:
+    # Parse posts.
+    posts: List[Post] = []
     for card in data["data"]["cards"]:
-        mb = card["mblog"]
+        mb: Optional[dict] = card["mblog"]
+        if not mb:
+            print(f"no content in card: {card}")
+            continue
 
         post_raw_content = mb["text"]
         post_text = BeautifulSoup(post_raw_content, "lxml").text
 
-        post = {
-            "post_id": mb["id"],
-            "post_text": post_text,
-            "post_pics": mb["pic_ids"],
-            "user_id": mb["user"]["id"],
-            "user_screen_name": mb["user"]["screen_name"],
-            "user_profile_url": mb["user"]["profile_url"],
-            "user_gender": "female" if mb["user"]["gender"] == "f" else "male",
-            "user_followers_count": mb["user"]["followers_count"],
-        }
+        u = mb.get("user")
+        if u is None:
+            # Post has been deleted.
+            continue
+
+        user = User(
+            id=mb.get("user", {}).get("id", -1),
+            screen_name=mb.get("user", {}).get("screen_name", ""),
+            profile_url=mb.get("user", {}).get("profile_url", ""),
+            gender=mb.get("user", {}).get("gender", "?"),
+            followers_count=mb.get("user", {}).get("followers_count", ""),
+        )
+
+        # Extract pic URLs, if any.
+        pics: List[str] = []
+        if mb.get("pic_num", 0) != 0:
+            for item in mb.get("pics", [{}]):
+                pic_url = item.get("url", "")
+                if pic_url:
+                    pics.append(pic_url)
+
+        post = Post(
+            id=mb.get("id", ""),
+            text=post_text,
+            poster=user,
+            url=f"https://m.weibo.cn/status/{mb['id']}",
+            pics=pics,
+        )
         posts.append(post)
     return posts

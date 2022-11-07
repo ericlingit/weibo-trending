@@ -32,6 +32,7 @@ In addition, the following `user` fields are also extracted:
 - `id`: user ID (int)
 - `screen_name`: screen name
 - `profile_url`: link to user profile
+- `gender`: `"f"` for female, `"m"` for male. Weibo does not provide codes for those who are non-binary
 - `followers_count`: the str number of followers in units of 10,000. For example: `"433.8万"` (4,338,000).
 
 Note that repeated calls sometimes return posts that have been returned before.
