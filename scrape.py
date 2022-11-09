@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 URL = "https://m.weibo.cn/api/container/getIndex?containerid=102803&openApp=0"
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.5",
     "Accept-Encoding": "gzip, deflate, br",
@@ -49,7 +49,7 @@ class Post:
     pics: List[str]
 
 
-def parse_new_posts(data: dict) -> List[Post]:
+def parse_posts(data: dict) -> List[Post]:
     # Parse posts.
     posts: List[Post] = []
     for card in data["data"]["cards"]:
