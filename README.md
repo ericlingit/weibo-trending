@@ -8,11 +8,11 @@ To understand how Weibo fetches new posts, a network inspection is performed on 
 
 A request to endpoint `https://m.weibo.cn/api/container/getIndex?containerid=102803&openApp=0` is observed.
 
-![img](./img/inspect-api-url.png)
+![Screenshot of content API request](./img/inspect-api-url.png)
 
 Its response looks like this:
 
-![img](./img/inspect-response-cards.png)
+![Screenshot of content API response](./img/inspect-response-cards.png)
 
 The response is a nested JSON object. We're interested in the items in `data`'s `cards` array.
 
@@ -22,9 +22,10 @@ One call to the API returns ten cards. Whenever the device viewport scrolls towa
 
 This simple utility extracts the following fields from `mblog`:
 - `id`: post ID (str)
-- `created_at`: post date
+- `created_at`: post date (str)
 - `text`: post text; can contain HTML tags when a video stream is included
 - `source`: device the post is submitted from
+- `url`: link to the post
 - `user`: the poster
 - `pics`: the URLs to the images included in this post (array of objects)
 

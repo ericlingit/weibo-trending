@@ -41,7 +41,9 @@ class User:
 @dataclass
 class Post:
     id: str
+    created_at: str
     text: str
+    source: str
     url: str
     poster: User
     pics: List[str]
@@ -82,7 +84,9 @@ def parse_new_posts(data: dict) -> List[Post]:
 
         post = Post(
             id=mb.get("id", ""),
+            created_at=mb.get("created_at", ""),
             text=post_text,
+            source=mb.get("source", ""),
             poster=user,
             url=f"https://m.weibo.cn/status/{mb['id']}",
             pics=pics,
