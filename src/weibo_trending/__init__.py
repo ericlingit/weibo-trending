@@ -55,7 +55,7 @@ def parse_posts(data: dict) -> List[Post]:
     for card in data["data"]["cards"]:
         mb: Optional[dict] = card["mblog"]
         if not mb:
-            print(f"no content in card: {card}")
+            # print(f"no content in card: {card}")
             continue
 
         post_raw_content = mb["text"]
