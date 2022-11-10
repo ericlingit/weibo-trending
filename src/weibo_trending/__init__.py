@@ -4,8 +4,8 @@ from typing import List, Optional
 import requests
 from bs4 import BeautifulSoup
 
-URL = "https://m.weibo.cn/api/container/getIndex?containerid=102803&openApp=0"
-HEADERS = {
+request_url = "https://m.weibo.cn/api/container/getIndex?containerid=102803&openApp=0"
+request_headers = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.5",
@@ -24,7 +24,7 @@ HEADERS = {
 
 def get_new_posts() -> dict:
     # Each request returns 10 new posts.
-    resp = requests.get(url=URL, headers=HEADERS)
+    resp = requests.get(url=request_url, headers=request_headers)
     resp.raise_for_status()
     return resp.json()
 
