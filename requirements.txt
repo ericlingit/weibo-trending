@@ -10,3 +10,6 @@ requests
 
 # Build dist.
 build
+
+# Testing.
+pytest
