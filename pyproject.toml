@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "weibo_scraper_ericlingit"
+name = "weibo_trending"
 version = "0.0.1"
 authors = [
   { name="Eric Lin", email="ericlingit@users.noreply.github.com" },

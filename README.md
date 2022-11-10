@@ -1,4 +1,4 @@
-# Weibo Scraper
+# Weibo trending posts scraper
 
 Scrap trending posts from Weibo front page.
 
@@ -38,6 +38,39 @@ In addition, the following `user` fields are also extracted:
 
 Note that repeated calls sometimes return posts that have been returned before.
 
+## Usage guide
+
+### As a library
+
+- pip install xxx
+- from weibo_scraper import get_new_posts, parse_posts
+
+
+### As a command line tool
+
+- pip install xxx
+- python -m weibo_scraper
+
+
+## Develop
+
+```
+git clone xxx
+python3 -m venv venv
+source venv/bin/activate
+pip install -U pip wheel
+pip install -r requirements.txt
+pip install -e .
+pytest
+```
+
+### Packaging
+
+```
+python -m build --wheel
+```
+
+The built wheel is in `./dist/`.
 
 <!--
 
