@@ -23,7 +23,9 @@ request_headers = {
 
 
 def get_new_posts() -> dict:
-    # Each request returns 10 new posts.
+    """Each request returns 10 new posts. For a sample response JSON, see
+    test/response.json.
+    """
     resp = requests.get(url=request_url, headers=request_headers)
     resp.raise_for_status()
     return resp.json()
