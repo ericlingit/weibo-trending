@@ -42,14 +42,14 @@ Note that repeated calls sometimes return posts that have been returned before.
 
 ### As a library
 
-- pip install xxx
-- from weibo_scraper import get_new_posts, parse_posts
+- pip install weibo_trending
+- from weibo_trending import get_new_posts, parse_posts
 
 
 ### As a command line tool
 
-- pip install xxx
-- python -m weibo_scraper
+- pip install weibo_trending
+- python -m weibo_trending
 
 
 ## Develop
