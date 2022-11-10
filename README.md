@@ -55,7 +55,8 @@ Note that repeated calls sometimes return posts that have been returned before.
 ## Develop
 
 ```
-git clone xxx
+git clone https://github.com/ericlingit/weibo-trending.git
+cd weibo-trending
 python3 -m venv venv
 source venv/bin/activate
 pip install -U pip wheel
