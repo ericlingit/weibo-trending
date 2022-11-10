@@ -24,5 +24,5 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/ericlingit/weibo-scraper"
-"Bug Tracker" = "https://github.com/ericlingit/weibo-scraper/issues"
+"Homepage" = "https://github.com/ericlingit/weibo-trending"
+"Bug Tracker" = "https://github.com/ericlingit/weibo-trending/issues"
