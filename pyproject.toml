@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "weibo_scraper_ericlingit"
+version = "0.0.1"
+authors = [
+  { name="Eric Lin", email="ericlingit@users.noreply.github.com" },
+]
+description = "Weibo trending posts scraper"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Topic :: Utilities",
+]
+dependencies = [
+  "beautifulsoup4",
+  "lxml",
+  "requests",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ericlingit/weibo-scraper"
+"Bug Tracker" = "https://github.com/ericlingit/weibo-scraper/issues"

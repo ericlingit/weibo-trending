@@ -7,3 +7,6 @@ types-requests
 beautifulsoup4
 lxml
 requests
+
+# Build dist.
+build
