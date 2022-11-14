@@ -71,6 +71,8 @@ def parse_mblog(mblog: dict) -> Microblog:
     pics: List[str] = []
     if mblog.get("pic_num", 0) != 0:
         for pic_obj in mblog.get("pics", [{}]):
+            if type(pic_obj) is str:
+                continue
             pic_url = pic_obj.get("url", "")
             if pic_url:
                 pics.append(pic_url)
