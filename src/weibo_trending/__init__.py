@@ -48,50 +48,54 @@ class Microblog:
     poster: User
     pics: List[str]
     created_at: str
-    source: str  # `source` is the device used to create the post.
+    source: str  # `source` is the device used to create the microblog.
+
+
+def parse_mblog(mblog: dict) -> Microblog:
+    """Parse one mblog item."""
+    raw_text = mblog["text"]
+    text = BeautifulSoup(raw_text, "lxml").text
+
+    user = User(
+        id=mblog.get("user", {}).get("id", -1),
+        screen_name=mblog.get("user", {}).get("screen_name", ""),
+        profile_url=mblog.get("user", {}).get("profile_url", ""),
+        gender=mblog.get("user", {}).get("gender", "?"),
+        followers_count=mblog.get("user", {}).get("followers_count", ""),
+    )
+
+    # Extract pic URLs, if any.
+    pics: List[str] = []
+    if mblog.get("pic_num", 0) != 0:
+        for pic_obj in mblog.get("pics", [{}]):
+            pic_url = pic_obj.get("url", "")
+            if pic_url:
+                pics.append(pic_url)
+
+    return Microblog(
+        id=mblog.get("id", ""),
+        created_at=mblog.get("created_at", ""),
+        text=text,
+        source=mblog.get("source", ""),
+        poster=user,
+        url=f"https://m.weibo.cn/status/{mblog['id']}",
+        pics=pics,
+    )
 
 
 def parse_response(data: dict) -> List[Microblog]:
     """Parse the raw JSON response from Weibo."""
-    posts: List[Microblog] = []
+    mblogs: List[Microblog] = []
     for card in data["data"]["cards"]:
         mb: Optional[dict] = card["mblog"]
         if not mb:
-            # print(f"no content in card: {card}")
             continue
-
-        post_raw_content = mb["text"]
-        post_text = BeautifulSoup(post_raw_content, "lxml").text
 
         u = mb.get("user")
         if u is None:
             # Post has been deleted.
             continue
 
-        user = User(
-            id=mb.get("user", {}).get("id", -1),
-            screen_name=mb.get("user", {}).get("screen_name", ""),
-            profile_url=mb.get("user", {}).get("profile_url", ""),
-            gender=mb.get("user", {}).get("gender", "?"),
-            followers_count=mb.get("user", {}).get("followers_count", ""),
-        )
-
-        # Extract pic URLs, if any.
-        pics: List[str] = []
-        if mb.get("pic_num", 0) != 0:
-            for item in mb.get("pics", [{}]):
-                pic_url = item.get("url", "")
-                if pic_url:
-                    pics.append(pic_url)
-
-        post = Microblog(
-            id=mb.get("id", ""),
-            created_at=mb.get("created_at", ""),
-            text=post_text,
-            source=mb.get("source", ""),
-            poster=user,
-            url=f"https://m.weibo.cn/status/{mb['id']}",
-            pics=pics,
-        )
-        posts.append(post)
-    return posts
+        mblog = parse_mblog(mb)
+        mblogs.append(mblog)
+    return mblogs
