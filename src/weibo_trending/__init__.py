@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import List, Optional
 
 import requests
@@ -49,6 +49,9 @@ class Microblog:
     pics: List[str]
     created_at: str
     source: str  # `source` is the device used to create the microblog.
+
+    def to_dict(self) -> dict:
+        return asdict(self)
 
 
 def parse_mblog(mblog: dict) -> Microblog:
