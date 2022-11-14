@@ -47,7 +47,7 @@ Note that repeated calls sometimes return posts that have been returned before.
 
 Install
 
-`pip install weibo_trending`
+`pip install weibo-trending`
 
 Get and parse posts
 
@@ -65,7 +65,7 @@ for mblog in mblogs:
 
 Install
 
-`pip install weibo_trending`
+`pip install weibo-trending`
 
 Usage
 
