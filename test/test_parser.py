@@ -1,11 +1,12 @@
 import json
 
-from weibo_trending import parse_posts
+from weibo_trending import parse_response
 
 
 def test_parse_posts():
     with open("test/response.json") as fh:
         data: dict = json.load(fh)
-    posts = parse_posts(data)
+    mblogs = parse_response(data)
 
-    assert len(posts) > 0
+    # One of the mblogs has been deleted, so the total number of mblogs should be 9, not 10.
+    assert len(mblogs) == 9
