@@ -23,8 +23,8 @@ request_headers = {
 
 
 def get_new_posts() -> dict:
-    """Each request returns 10 new posts. For a sample response JSON, see
-    test/response.json.
+    """Get new posts from Weibo, and return the rawo JSON response.
+    A successful response contains 10 new posts.
     """
     resp = requests.get(url=request_url, headers=request_headers)
     resp.raise_for_status()
@@ -34,26 +34,26 @@ def get_new_posts() -> dict:
 @dataclass
 class User:
     id: int
-    screen_name: str
     profile_url: str
-    followers_count: str  # Example: "433.8万".
+    screen_name: str
     gender: str
+    followers_count: str  # Example: "433.8万".
 
 
 @dataclass
-class Post:
-    id: str
-    created_at: str
+class Microblog:
     text: str
-    source: str
+    id: str
     url: str
     poster: User
     pics: List[str]
+    created_at: str
+    source: str  # `source` is the device used to create the post.
 
 
-def parse_posts(data: dict) -> List[Post]:
-    # Parse posts.
-    posts: List[Post] = []
+def parse_response(data: dict) -> List[Microblog]:
+    """Parse the raw JSON response from Weibo."""
+    posts: List[Microblog] = []
     for card in data["data"]["cards"]:
         mb: Optional[dict] = card["mblog"]
         if not mb:
@@ -84,7 +84,7 @@ def parse_posts(data: dict) -> List[Post]:
                 if pic_url:
                     pics.append(pic_url)
 
-        post = Post(
+        post = Microblog(
             id=mb.get("id", ""),
             created_at=mb.get("created_at", ""),
             text=post_text,
