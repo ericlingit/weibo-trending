@@ -75,7 +75,7 @@ def parse_mblog(mblog: dict) -> Microblog:
                 continue
             pic_url = pic_obj.get("url", "")
             if pic_url:
-                pics.append(pic_url)
+                pics.append(pic_url.replace("orj360", "large"))
 
     return Microblog(
         id=mblog.get("id", ""),
