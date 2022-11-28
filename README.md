@@ -2,46 +2,7 @@
 
 Scrap trending posts from Weibo front page.
 
-
-## Weibo API
-
-To understand how Weibo fetches new posts, a network inspection is performed on the mobile website.
-
-A request to this API endpoint is observed: `https://m.weibo.cn/api/container/getIndex?containerid=102803&openApp=0`
-
-
-![Screenshot of content API request](./img/inspect-api-url.png)
-
-Its response looks like this:
-
-![Screenshot of content API response](./img/inspect-response-cards.png)
-
-The response is a nested JSON object. We're interested in the items in `data`'s `cards` array.
-
-Each *card* contains a `mblog` (microblog) object that encapsulates the content as well as metadata about the content.
-
-One call to the API returns ten cards. When the device viewport scrolls toward the bottom of the page, the API is called again to fetch 10 more posts.
-
-weibo-trending extracts the following fields from `mblog`:
-- `text`: post text; can contain HTML tags when a video stream is included
-- `id`: post ID (str)
-- `url`: link to the post
-- `user`: the poster
-- `pics`: the URLs to the images included in this post (array of objects)
-- `created_at`: post date (str)
-- `source`: the device the post is submitted from
-
-In addition, the following `user` fields are also extracted:
-- `id`: user ID (int)
-- `profile_url`: link to user profile
-- `screen_name`: screen name
-- `gender`: `"f"` for female, `"m"` for male. Weibo does not provide codes for those who are non-binary
-- `followers_count`: the str number of followers in units of 10,000. For example: `"433.8万"` (4,338,000).
-
-Note that repeated calls sometimes return posts that have been returned before.
-
-
-## weibo-trending usage guide
+## Usage guide
 
 ### As a library
 
@@ -59,7 +20,6 @@ mblogs = parse_response(resp)
 for mblog in mblogs:
     print(mblog)
 ```
-
 
 ### As a command line tool
 
@@ -104,7 +64,7 @@ pip install -e .
 pytest
 ```
 
-### Packaging
+### Package
 
 ```
 python -m build --wheel
