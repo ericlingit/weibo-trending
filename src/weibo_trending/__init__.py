@@ -2,7 +2,7 @@ from dataclasses import dataclass, asdict
 from typing import List, Optional
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 request_url = "https://m.weibo.cn/api/container/getIndex?containerid=102803&openApp=0"
 request_headers = {
@@ -56,9 +56,6 @@ class Microblog:
 
 def parse_mblog(mblog: dict) -> Microblog:
     """Parse one mblog item."""
-    raw_text = mblog["text"]
-    text = BeautifulSoup(raw_text, "lxml").text
-
     user = User(
         id=mblog.get("user", {}).get("id", -1),
         screen_name=mblog.get("user", {}).get("screen_name", ""),
@@ -80,12 +77,33 @@ def parse_mblog(mblog: dict) -> Microblog:
     return Microblog(
         id=mblog.get("id", ""),
         created_at=mblog.get("created_at", ""),
-        text=text,
+        text=mblog.get("text", ""),  # May contain HTML elements like anchor tags.
         source=mblog.get("source", ""),
         poster=user,
         url=f"https://m.weibo.cn/status/{mblog['id']}",
         pics=pics,
     )
+
+
+def get_full_text_from_snippet(mb: Microblog) -> str:
+    """Check if a Microblog's text is a snippet. If it is, get the full text."""
+    # A snippet has a clickable "全文" anchor element at the end. Clicking on it
+    # leads to the full post.
+    soup = BeautifulSoup(mb.text, "lxml")
+    anchors: List[Tag] = soup.find_all("a")
+    if anchors:
+        a = anchors[-1]
+        href = a.get("href", "")
+        if a.text == "全文" and href == f"/status/{mb.id}":
+            # Get full text.
+            u = f"https://m.weibo.cn/statuses/extend?id={mb.id}"
+            h = request_headers.copy()
+            h["Referer"] = f"https://m.weibo.cn/detail/{mb.id}"
+            r = requests.get(u, headers=h)
+            r.raise_for_status()
+            s = BeautifulSoup(r.content, "lxml")
+            return s.text
+    return soup.text
 
 
 def parse_response(data: dict) -> List[Microblog]:
@@ -102,5 +120,6 @@ def parse_response(data: dict) -> List[Microblog]:
             continue
 
         mblog = parse_mblog(mb)
+        mblog.text = get_full_text_from_snippet(mblog)
         mblogs.append(mblog)
     return mblogs
