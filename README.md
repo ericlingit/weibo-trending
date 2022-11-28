@@ -2,6 +2,11 @@
 
 Scrap trending posts from Weibo front page.
 
+<!--
+For notes detailing Weibo API endpoints and their responses, see the wiki:
+https://github.com/ericlingit/weibo-trending/wiki/Weibo-API
+-->
+
 ## Usage guide
 
 ### As a library
