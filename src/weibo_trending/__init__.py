@@ -123,3 +123,73 @@ def parse_response(data: dict) -> List[Microblog]:
         mblog.text = get_full_text_from_snippet(mblog)
         mblogs.append(mblog)
     return mblogs
+
+
+@dataclass
+class Comment:
+    created_at: str
+    id: str
+    rootid: str  # The parent comment's ID.
+    floor_number: int
+    text: str
+    source: str
+    user: User
+    comments: List["Comment"]  # Replies to this comment.
+    isLikedByMblogAuthor: bool
+    pic: str  # A comment can have only 1 pic.
+    like_count: int
+
+
+def get_raw_comments(post_id: str) -> List[dict]:
+    url = (
+        "https://m.weibo.cn/comments/"
+        f"hotflow?id={post_id}&mid={post_id}&max_id_type=0"
+    )
+    h = request_headers.copy()
+    h["Referer"] = f"https://m.weibo.cn/detail/{post_id}"
+    r = requests.get(url, headers=h)
+    r.raise_for_status()
+    data: dict = r.json()
+
+    raw_comments: List[dict] = data.get("data", {}).get("data", [])
+    return raw_comments
+
+
+def parse_comments(raw_comments: List[dict]) -> List[Comment]:
+    """Parse all comments, include replies."""
+    comments: List[Comment] = []
+    for rc in raw_comments:
+        u: dict = rc.get("user", {})
+        user = User(
+            id=u.get("id", -1),
+            profile_url=u.get("profile_url", ""),
+            screen_name=u.get("screen_name", ""),
+            gender=u.get("gender", ""),
+            followers_count=u.get("followers_count", ""),
+        )
+
+        # Extract nested comments. "comments" field could be `False`.
+        nested_comments: List[dict] = (
+            [] if not rc.get("comments") else rc.get("comments", [])
+        )
+        replies = parse_comments(nested_comments)
+
+        # Extract pic URL, if any. Unlike front page data, a comment has only
+        # one pic.
+        pic_url: str = rc.get("pic", {}).get("large", {}).get("url", "")
+
+        c = Comment(
+            created_at=rc.get("created_at", ""),
+            id=rc.get("id", ""),
+            rootid=rc.get("rootid", ""),
+            floor_number=rc.get("floor_number", -1),
+            text=rc.get("text", ""),
+            source=rc.get("source", ""),
+            user=user,
+            comments=replies,
+            isLikedByMblogAuthor=rc.get("isLikedByMblogAuthor", False),
+            pic=pic_url,
+            like_count=rc.get("like_count", -1),
+        )
+        comments.append(c)
+    return comments
