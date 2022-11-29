@@ -183,7 +183,7 @@ def parse_comments(raw_comments: List[dict]) -> List[Comment]:
             id=rc.get("id", ""),
             rootid=rc.get("rootid", ""),
             floor_number=rc.get("floor_number", -1),
-            text=rc.get("text", ""),
+            text=BeautifulSoup(rc.get("text", ""), "lxml").text,
             source=rc.get("source", ""),
             user=user,
             comments=replies,
