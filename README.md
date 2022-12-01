@@ -26,6 +26,18 @@ for mblog in mblogs:
     print(mblog)
 ```
 
+Get and parse comments
+
+```python
+from weibo_trending import get_raw_comments, parse_comments
+
+example_post_id = "4840673008419178"
+raw_cmt = get_raw_comments(example_post_id)
+comments = parse_comments(raw_cmt)
+for c in comments:
+    print(c)
+```
+
 ### As a command line tool
 
 Install
