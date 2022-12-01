@@ -22,13 +22,49 @@ request_headers = {
 }
 
 
+def get_full_text_from_snippet(raw_text: str, mblog_id: str) -> str:
+    """Check if a raw_text is a snippet. If it is, get the full text."""
+    # A snippet has a clickable "全文" anchor element at the end. Clicking on it
+    # sends a request to fetch the full post.
+    soup = BeautifulSoup(raw_text, "lxml")
+    anchors: List[Tag] = soup.find_all("a")
+    if anchors:
+        a = anchors[-1]
+        href = a.get("href", "")
+        if a.text == "全文" and href == f"/status/{mblog_id}":
+            # Get full text.
+            u = f"https://m.weibo.cn/statuses/extend?id={mblog_id}"
+            h = request_headers.copy()
+            h["Referer"] = f"https://m.weibo.cn/detail/{mblog_id}"
+            r = requests.get(u, headers=h)
+            r.raise_for_status()
+            data: dict = r.json()
+            if data.get("ok", -1) != 1:
+                return soup.text
+            s = BeautifulSoup(data.get("data", {}).get("longTextContent", ""), "lxml")
+            return s.text
+    return soup.text
+
+
 def get_new_posts() -> dict:
     """Get new posts from Weibo, and return the rawo JSON response.
     A successful response contains 10 new posts.
     """
     resp = requests.get(url=request_url, headers=request_headers)
     resp.raise_for_status()
-    return resp.json()
+
+    # Go through each card, and fetch the full text if it's a snippet.
+    data: dict = resp.json()
+    if data.get("ok", -1) == 1:
+        for card in data.get("data", {}).get("cards", [{}]):
+            mb: Optional[dict] = card.get("mblog", {})
+            if not mb:
+                continue
+            mblog_id = mb.get("id", "")
+            raw_text = mb.get("text", "")
+            full_text = get_full_text_from_snippet(raw_text, mblog_id)
+            mb["text"] = full_text
+    return data
 
 
 @dataclass
@@ -85,27 +121,6 @@ def parse_mblog(mblog: dict) -> Microblog:
     )
 
 
-def get_full_text_from_snippet(mb: Microblog) -> str:
-    """Check if a Microblog's text is a snippet. If it is, get the full text."""
-    # A snippet has a clickable "全文" anchor element at the end. Clicking on it
-    # leads to the full post.
-    soup = BeautifulSoup(mb.text, "lxml")
-    anchors: List[Tag] = soup.find_all("a")
-    if anchors:
-        a = anchors[-1]
-        href = a.get("href", "")
-        if a.text == "全文" and href == f"/status/{mb.id}":
-            # Get full text.
-            u = f"https://m.weibo.cn/statuses/extend?id={mb.id}"
-            h = request_headers.copy()
-            h["Referer"] = f"https://m.weibo.cn/detail/{mb.id}"
-            r = requests.get(u, headers=h)
-            r.raise_for_status()
-            s = BeautifulSoup(r.content, "lxml")
-            return s.text
-    return soup.text
-
-
 def parse_response(data: dict) -> List[Microblog]:
     """Parse the raw JSON response from Weibo."""
     mblogs: List[Microblog] = []
@@ -120,7 +135,6 @@ def parse_response(data: dict) -> List[Microblog]:
             continue
 
         mblog = parse_mblog(mb)
-        mblog.text = get_full_text_from_snippet(mblog)
         mblogs.append(mblog)
     return mblogs
 
