@@ -5,6 +5,7 @@ types-requests
 
 # Dependencies.
 beautifulsoup4
+brotli
 lxml
 requests
 
